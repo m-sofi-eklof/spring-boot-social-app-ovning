@@ -1,20 +1,25 @@
 package se.jensen.sofi_n.social_app.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import se.jensen.sofi_n.social_app.dto.PostRequestDTO;
+import se.jensen.sofi_n.social_app.model.Post;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    private List<String> posts = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
 
     @GetMapping
-    public ResponseEntity<List<String>> getPosts() {
+    public ResponseEntity<List<Post>> getPosts() {
         if(posts.isEmpty()) {
-            //returnera ett svar med statuskod 304 No Content + tom body
+            //returnera ett svar med statuskod 204 No Content + tom body
             return ResponseEntity.noContent().build();
         }
         //returnera status 200 OK + listan posts som JSON array
@@ -22,31 +27,34 @@ public class PostController {
     }
 
     @GetMapping("/{index}")
-    public ResponseEntity<String> getPost(@PathVariable int index) {
-        if (index<0 || index >= posts.size()){
+    public ResponseEntity<Post> getPost(@PathVariable int index) {
+        if (index<0 || index >= posts.size()) {
             //returnera status 404 not found + body med felsträng
-            return ResponseEntity.status(404).body("ogiltigt index: "+index);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         //returnera status 200 OK + inlägget av indexet index
         return ResponseEntity.ok(posts.get(index));
     }
 
     @PostMapping
-    public ResponseEntity<String> addPost(@RequestBody String post) {
+    public ResponseEntity<String> addPost(@Valid @RequestBody PostRequestDTO dto) {
+        Post post = new Post(dto.text());
+        post.setCreatedAt(LocalDateTime.now());
         posts.add(post);
-        return ResponseEntity.ok("Post added: (" + post + ")");
+        //returnera status 201 Created + infosträng som body
+        return ResponseEntity.status(HttpStatus.CREATED).body("Post added: (" + post + ")");
     }
 
     @PutMapping("/{index}")
-    public ResponseEntity<String> updatePost(@PathVariable int index, @RequestBody String newPost) {
+    public ResponseEntity<String> updatePost(@PathVariable int index, @Valid @RequestBody PostRequestDTO dto) {
         if (index<0 || index >= posts.size()){
             //returnera status 404 Not Found + felsträng som body
             return ResponseEntity.status(404).body("ogiltigt index: "+index);
         }
-        String oldPost = posts.get(index);
-        posts.set(index, newPost);
+        String oldText = posts.get(index).getText();
+        posts.get(index).setText(dto.text());
         //returnera status 200 OK + infosträng som body
-        return ResponseEntity.ok("Post updated (from:" + oldPost + " to:" + newPost + ")");
+        return ResponseEntity.ok("Post updated (from:" + oldText + " to:" + posts.get(index).getText() + ")");
     }
 
     @DeleteMapping("/{index}")
@@ -55,7 +63,7 @@ public class PostController {
             //returnera status 404 Not Found + felsträng som body
             return ResponseEntity.status(404).body("ogiltigt index: "+index);
         }
-        String deletedPost = posts.get(index);
+        Post deletedPost = posts.get(index);
         posts.remove(index);
         //Returnera status 200 OK + infosträng som body
         return ResponseEntity.ok("Post deleted (" + deletedPost + ")");
