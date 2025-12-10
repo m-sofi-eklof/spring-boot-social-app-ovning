@@ -1,14 +1,12 @@
 package se.jensen.sofi_n.social_app.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name="app_user")
 public class User {

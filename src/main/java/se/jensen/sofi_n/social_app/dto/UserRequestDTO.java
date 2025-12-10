@@ -42,5 +42,20 @@ public record UserRequestDTO(
                 message = "Lösenordmåste vara 8-25 tecken, minst 1 siffra"
         )
         @Size(max=40, message = "Lösenord får ej överstiga 40 karaktärer")
-        String password
+        String password,
+
+        @NotBlank(message = "Roll får ej vara tom")
+        String role,
+
+        @NotBlank(message = "Display name får ej vara tom")
+        @Size(max = 30, message = "Display name får ej överstiga 30 tecken")
+        String displayName,
+
+        @NotBlank(message = "Bio får ej vara tom")
+        @Size(max = 200, message = "Bio får ej överstiga 200 tecken")
+        String bio,
+
+        @Size(max = 100, message = "Bildsökväg får ej överstiga 100 tecken")
+        String profileImagePath
+
 ) {}
