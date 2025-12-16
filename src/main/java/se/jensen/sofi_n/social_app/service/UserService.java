@@ -1,13 +1,17 @@
 package se.jensen.sofi_n.social_app.service;
 
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
+import se.jensen.sofi_n.social_app.dto.PostResponseDTO;
 import se.jensen.sofi_n.social_app.dto.UserRequestDTO;
 import se.jensen.sofi_n.social_app.dto.UserResponseDTO;
+import se.jensen.sofi_n.social_app.dto.UserWithPostResponseDTO;
 import se.jensen.sofi_n.social_app.exception.EmailExistsException;
 import se.jensen.sofi_n.social_app.exception.UserNotFoundException;
 import se.jensen.sofi_n.social_app.exception.UsernameExistsException;
+import se.jensen.sofi_n.social_app.mapper.UserMapper;
 import se.jensen.sofi_n.social_app.model.User;
 import se.jensen.sofi_n.social_app.repository.UserRepository;
 
@@ -15,23 +19,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
+    public UserWithPostResponseDTO getUserWithPosts(Long id) {
+        User user = userRepository.findUserWithPosts(id)
+                .orElseThrow(()->
+                        new UserNotFoundException("Användare med id " + id + " hittades ej"));
+
+        //konverter posts till dto
+        List<PostResponseDTO> posts = user.getPosts().stream()
+                .map(p-> new PostResponseDTO(
+                        p.getId(),
+                        p.getText(),
+                        p.getCreatedAt()
+                )).toList();
+        //konverter user till dto
+        UserResponseDTO userDto = UserMapper.toDTO(user);
+
+        //slå ihop och returnera
+        return new UserWithPostResponseDTO(userDto, posts);
     }
 
     public List<UserResponseDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
-                .map(this::toDTO).toList();
+                .map(UserMapper::toDTO).toList();
     }
 
     public UserResponseDTO getUserById(Long id) {
         return userRepository.findById(id)
-                .map(this::toDTO).orElseThrow(()->new UserNotFoundException("Användaren hittades inte"));
+                .map(UserMapper::toDTO).orElseThrow(()->new UserNotFoundException("Användaren hittades inte"));
     }
 
     public UserResponseDTO addUser(UserRequestDTO dto) {
@@ -43,8 +70,8 @@ public class UserService {
             throw new UsernameExistsException("En användare med detta användarnamn finns redan i databasen");
         }
         //konvertera, spara, konvertera tillbaka, returnera
-        User savedUser= userRepository.save(fromDTO(dto));
-        return toDTO(savedUser);
+        User savedUser= userRepository.save(UserMapper.fromDTO(dto));
+        return UserMapper.toDTO(savedUser);
     }
 
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
@@ -70,7 +97,7 @@ public class UserService {
 
         // spara och returnera
         User updated = userRepository.save(user);
-        return toDTO(updated);
+        return UserMapper.toDTO(updated);
     }
 
     public UserResponseDTO deleteUser(Long id) {
@@ -82,30 +109,6 @@ public class UserService {
         //hämta, radera från db, returnera som dto
         User user = optinalUser.get();
         userRepository.delete(user);
-        return toDTO(user);
-    }
-
-    private User fromDTO(UserRequestDTO dto) {
-        User user = new User();
-        user.setUsername(dto.username());
-        user.setEmail(dto.email());
-        user.setPassword(dto.password());
-        user.setRole(dto.role());
-        user.setDisplayName(dto.displayName());
-        user.setBio(dto.bio());
-        user.setProfileImagePath(dto.profileImagePath());
-        return user;
-    }
-
-    private UserResponseDTO toDTO(User user) {
-        return new UserResponseDTO(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.getDisplayName(),
-                user.getBio(),
-                user.getProfileImagePath()
-        );
+        return UserMapper.toDTO(user);
     }
 }

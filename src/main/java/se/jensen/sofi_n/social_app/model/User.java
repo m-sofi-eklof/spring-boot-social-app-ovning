@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter @Setter
 @NoArgsConstructor
 @Entity
@@ -27,6 +30,13 @@ public class User {
     private String bio;
     @Column(name = "profile_image_path")
     private String profileImagePath;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.REMOVE,
+            fetch = FetchType.LAZY
+    )
+    private List<Post> posts = new ArrayList<>();
 
     public User(String username, String password, String role) {
         this.username = username;
