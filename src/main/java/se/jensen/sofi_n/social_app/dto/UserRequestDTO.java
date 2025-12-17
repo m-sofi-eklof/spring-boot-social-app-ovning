@@ -20,7 +20,7 @@ public record UserRequestDTO(
                 regexp = "^(?=.*\\d).{8,25}$",
                 message = "Lösenordmåste vara 8-25 tecken, minst 1 siffra"
         )
-        @Size(max=40, message = "Lösenord får ej överstiga 40 karaktärer")
+        @Size(max=255, message = "Lösenord får ej överstiga 255 karaktärer")
         String password,
 
         @NotBlank(message = "Roll får ej vara tom")

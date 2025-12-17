@@ -2,6 +2,7 @@ package se.jensen.sofi_n.social_app.service;
 
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import se.jensen.sofi_n.social_app.dto.PostResponseDTO;
@@ -25,10 +26,12 @@ import static java.util.stream.Collectors.toList;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserWithPostResponseDTO getUserWithPosts(Long id) {
@@ -69,8 +72,14 @@ public class UserService {
         if(userRepository.existsByUsernameIgnoreCase(dto.username())) {
             throw new UsernameExistsException("En användare med detta användarnamn finns redan i databasen");
         }
-        //konvertera, spara, konvertera tillbaka, returnera
-        User savedUser= userRepository.save(UserMapper.fromDTO(dto));
+        //konvertera
+        User user = UserMapper.fromDTO(dto);
+        //hasha lösen
+        String rawPassword = user.getPassword();
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        //spara
+        User savedUser = userRepository.save(user);
+        //returnera som dto
         return UserMapper.toDTO(savedUser);
     }
 

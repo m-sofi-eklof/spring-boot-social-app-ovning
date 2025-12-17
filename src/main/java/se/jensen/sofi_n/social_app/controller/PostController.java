@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.jensen.sofi_n.social_app.dto.PostRequestDTO;
+import se.jensen.sofi_n.social_app.dto.PostResponseDTO;
 import se.jensen.sofi_n.social_app.model.Post;
+import se.jensen.sofi_n.social_app.service.PostService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,58 +16,43 @@ import java.util.List;
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    private List<Post> posts = new ArrayList<>();
+    private final PostService postService;
 
-    @GetMapping
-    public ResponseEntity<List<Post>> getPosts() {
-        if(posts.isEmpty()) {
-            //returnera ett svar med statuskod 204 No Content + tom body
-            return ResponseEntity.noContent().build();
-        }
-        //returnera status 200 OK + listan posts som JSON array
-        return ResponseEntity.ok(posts);
+    public  PostController(PostService postService) {
+        this.postService = postService;
     }
 
-    @GetMapping("/{index}")
-    public ResponseEntity<Post> getPost(@PathVariable int index) {
-        if (index<0 || index >= posts.size()) {
-            //returnera status 404 not found + body med felsträng
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        //returnera status 200 OK + inlägget av indexet index
-        return ResponseEntity.ok(posts.get(index));
+    @GetMapping
+    public ResponseEntity<List<PostResponseDTO>> getPosts() {
+        List<PostResponseDTO> posts = postService.getAllPosts();
+        return posts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponseDTO> getPost(@PathVariable Long id) {
+        PostResponseDTO post = postService.getPostById(id);
+        return ResponseEntity.ok(post);
     }
 
     @PostMapping
-    public ResponseEntity<String> addPost(@Valid @RequestBody PostRequestDTO dto) {
-        Post post = new Post(dto.text());
-        post.setCreatedAt(LocalDateTime.now());
-        posts.add(post);
-        //returnera status 201 Created + infosträng som body
-        return ResponseEntity.status(HttpStatus.CREATED).body("Post added: (" + post + ")");
+    public ResponseEntity<PostResponseDTO> addPost(
+            @RequestParam Long userId,
+            @Valid @RequestBody PostRequestDTO dto) {
+        PostResponseDTO created = postService.createPost(userId, dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PutMapping("/{index}")
-    public ResponseEntity<String> updatePost(@PathVariable int index, @Valid @RequestBody PostRequestDTO dto) {
-        if (index<0 || index >= posts.size()){
-            //returnera status 404 Not Found + felsträng som body
-            return ResponseEntity.status(404).body("ogiltigt index: "+index);
-        }
-        String oldText = posts.get(index).getText();
-        posts.get(index).setText(dto.text());
-        //returnera status 200 OK + infosträng som body
-        return ResponseEntity.ok("Post updated (from:" + oldText + " to:" + posts.get(index).getText() + ")");
+    @PutMapping("/{id}")
+    public ResponseEntity<PostResponseDTO> updatePost(
+            @PathVariable Long id,
+            @Valid @RequestBody PostRequestDTO dto) {
+        PostResponseDTO updated = postService.updatePost(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/{index}")
-    public ResponseEntity<String> deletePost(@PathVariable int index) {
-        if (index<0 || index >= posts.size()){
-            //returnera status 404 Not Found + felsträng som body
-            return ResponseEntity.status(404).body("ogiltigt index: "+index);
-        }
-        Post deletedPost = posts.get(index);
-        posts.remove(index);
-        //Returnera status 200 OK + infosträng som body
-        return ResponseEntity.ok("Post deleted (" + deletedPost + ")");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+        return ResponseEntity.noContent().build();
     }
 }

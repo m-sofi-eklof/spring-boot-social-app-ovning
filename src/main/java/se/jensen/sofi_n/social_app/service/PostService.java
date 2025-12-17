@@ -63,4 +63,12 @@ public class PostService {
         Post updated = postRepository.save(post);
         return PostMapper.toDTO(updated);
     }
+
+    public void deletePost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Inlägg med id " + id + " hittades ej"));
+        postRepository.delete(post);
+    }
+
 }
