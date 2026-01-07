@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record UserRequestDTO(
         @NotBlank(message = "Användarnamn får ej vara tomt")
-        @Size(min=3, max = 50, message = "Användarnamn måste vra 3-30 tecken")
+        @Size(min=3, max = 50, message = "Användarnamn måste vara 3-30 tecken")
         String username,
 
         @NotBlank(message = "E-post får ej vara tom")
@@ -18,7 +18,7 @@ public record UserRequestDTO(
         @NotBlank
         @Pattern(
                 regexp = "^(?=.*\\d).{8,25}$",
-                message = "Lösenordmåste vara 8-25 tecken, minst 1 siffra"
+                message = "Lösenord måste vara 8-25 tecken, minst 1 siffra"
         )
         @Size(max=255, message = "Lösenord får ej överstiga 255 karaktärer")
         String password,

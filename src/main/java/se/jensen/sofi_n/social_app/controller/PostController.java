@@ -6,26 +6,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.jensen.sofi_n.social_app.dto.PostRequestDTO;
 import se.jensen.sofi_n.social_app.dto.PostResponseDTO;
-import se.jensen.sofi_n.social_app.model.Post;
 import se.jensen.sofi_n.social_app.service.PostService;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
 public class PostController {
+
     private final PostService postService;
 
-    public  PostController(PostService postService) {
+    public PostController(PostService postService) {
         this.postService = postService;
     }
 
     @GetMapping
     public ResponseEntity<List<PostResponseDTO>> getPosts() {
         List<PostResponseDTO> posts = postService.getAllPosts();
-        return posts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(posts);
+        // Tom lista är normalt: returnera 200 OK med [].
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{id}")

@@ -7,14 +7,14 @@ import se.jensen.sofi_n.social_app.model.Post;
 
 @Component
 public class PostMapper {
-    public static PostResponseDTO toDTO(Post post) {
+    public PostResponseDTO toDTO(Post post) {
         return new PostResponseDTO(
                 post.getId(),
                 post.getText(),
                 post.getCreatedAt());
     }
 
-    public static Post fromDTO(PostRequestDTO dto) {
+    public Post fromDTO(PostRequestDTO dto) {
         Post post = new Post();
         post.setText(dto.text());
         //createdAt sätts i service

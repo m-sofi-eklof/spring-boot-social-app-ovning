@@ -1,14 +1,13 @@
 package se.jensen.sofi_n.social_app.mapper;
 
 import org.springframework.stereotype.Component;
-import se.jensen.sofi_n.social_app.dto.PostResponseDTO;
 import se.jensen.sofi_n.social_app.dto.UserRequestDTO;
 import se.jensen.sofi_n.social_app.dto.UserResponseDTO;
 import se.jensen.sofi_n.social_app.model.User;
 
 @Component
 public class UserMapper {
-    public static User fromDTO(UserRequestDTO dto) {
+    public User fromDTO(UserRequestDTO dto) {
         User user = new User();
         user.setUsername(dto.username());
         user.setEmail(dto.email());
@@ -20,7 +19,7 @@ public class UserMapper {
         return user;
     }
 
-    public static UserResponseDTO toDTO(User user) {
+    public UserResponseDTO toDTO(User user) {
         return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import se.jensen.sofi_n.social_app.model.Post;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post,Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
 }

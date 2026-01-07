@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class MyUserDetails implements UserDetails {
+
     private final User user;
 
     public MyUserDetails(User user) {
@@ -27,15 +28,19 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //roll som USER eller ADMIN
+        // mappar roll (USER/ADMIN) till ROLE_USER / ROLE_ADMIN
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     public User getDomainUser() {
         return user;

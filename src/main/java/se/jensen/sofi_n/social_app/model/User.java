@@ -8,26 +8,35 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
-@Table(name="app_user")
+@Table(name = "app_user")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(unique = true, nullable = false)
     private String username;
+
     @Column(unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     @Column(nullable = false)
     private String role;
+
     @Column(name = "display_name", nullable = false)
     private String displayName;
+
     @Column(nullable = false)
     private String bio;
+
     @Column(name = "profile_image_path")
     private String profileImagePath;
 
@@ -44,15 +53,14 @@ public class User {
         this.role = role;
     }
 
-    //toString override
     @Override
     public String toString() {
-        String maskedPassword = password != null ? "*".repeat(password.length()) : "";//maskerat lösenord **
+        String maskedPassword = password != null ? "*".repeat(password.length()) : "";
         return "User{" +
                 "id=" + id +
                 ", username=" + username +
-                ", password='" + maskedPassword +
+                ", password='" + maskedPassword + '\'' +
                 ", role=" + role +
-                "}";
+                '}';
     }
 }
