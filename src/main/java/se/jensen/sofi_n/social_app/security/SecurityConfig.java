@@ -26,7 +26,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll() //temp byt till sen: .authenticated()
                 )
                 .formLogin(withDefaults());
         return http.build();
