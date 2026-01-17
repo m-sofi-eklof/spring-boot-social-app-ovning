@@ -43,7 +43,7 @@ public class PostService {
     }
 
     public List<PostResponseDTO> getAllPosts() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(postMapper::toDTO)
                 .toList();
     }

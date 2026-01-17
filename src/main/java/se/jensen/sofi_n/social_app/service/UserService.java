@@ -16,6 +16,8 @@ import se.jensen.sofi_n.social_app.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+import static sun.awt.image.MultiResolutionCachedImage.map;
+
 @Service
 public class UserService {
 
@@ -37,6 +39,7 @@ public class UserService {
                         new UserNotFoundException("Användare med id " + id + " hittades ej"));
 
         List<PostResponseDTO> posts = user.getPosts().stream()
+                .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))  //descending sorting
                 .map(p -> new PostResponseDTO(
                         p.getId(),
                         p.getText(),
